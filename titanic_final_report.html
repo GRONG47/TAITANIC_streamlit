@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>타이타닉 데이터 분석 최종 보고서</title>
+  <style>
+    :root {
+      --ink: #1f2933;
+      --muted: #66737f;
+      --paper: #ffffff;
+      --background: #eef3f2;
+      --green: #2a9d8f;
+      --green-dark: #17786f;
+      --orange: #e76f51;
+      --blue: #457b9d;
+      --line: #d9e2e1;
+      --soft: #f5f9f8;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--background);
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+      line-height: 1.7;
+    }
+
+    main {
+      width: min(1180px, calc(100% - 32px));
+      margin: 32px auto;
+      background: var(--paper);
+      box-shadow: 0 14px 40px rgba(31, 41, 51, 0.10);
+    }
+
+    header {
+      padding: 58px 64px 46px;
+      color: white;
+      background: linear-gradient(135deg, #174f56, #2a9d8f);
+    }
+
+    header .eyebrow {
+      margin: 0 0 8px;
+      font-size: 14px;
+      letter-spacing: 0.14em;
+      opacity: 0.82;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(32px, 5vw, 54px);
+      line-height: 1.22;
+    }
+
+    header .subtitle {
+      max-width: 780px;
+      margin: 18px 0 0;
+      font-size: 18px;
+      opacity: 0.92;
+    }
+
+    section { padding: 42px 64px; }
+    section + section { border-top: 1px solid var(--line); }
+
+    h2 {
+      margin: 0 0 22px;
+      color: #174f56;
+      font-size: 28px;
+    }
+
+    h3 { margin: 0 0 10px; font-size: 20px; }
+    p { margin: 0 0 14px; }
+
+    .lead {
+      color: #344651;
+      font-size: 18px;
+    }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-top: 26px;
+    }
+
+    .kpi {
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--soft);
+    }
+
+    .kpi strong {
+      display: block;
+      color: var(--green-dark);
+      font-size: 28px;
+    }
+
+    .kpi span { color: var(--muted); font-size: 14px; }
+
+    .summary-box {
+      margin-top: 24px;
+      padding: 22px 24px;
+      border-left: 5px solid var(--green);
+      border-radius: 8px;
+      background: #edf8f6;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 18px 0;
+      font-size: 14px;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th { color: #174f56; background: var(--soft); }
+    td.number { text-align: right; white-space: nowrap; }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .supported { color: #12665e; background: #dff3ef; }
+    .partial { color: #89551c; background: #fff0d6; }
+
+    figure {
+      margin: 24px 0 0;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: white;
+    }
+
+    figure img { display: block; width: 100%; height: auto; }
+    figcaption { padding: 12px 6px 2px; color: var(--muted); font-size: 13px; }
+
+    .chart-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 22px;
+    }
+
+    .chart-card {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: white;
+    }
+
+    .chart-card img { width: 100%; display: block; }
+    .chart-card .text { padding: 18px 20px 20px; }
+    .chart-card p { color: #465661; font-size: 14px; }
+
+    .note {
+      padding: 18px 20px;
+      border-radius: 10px;
+      background: #fff8ed;
+      color: #67451e;
+    }
+
+    ul { margin: 10px 0 0; padding-left: 22px; }
+    li + li { margin-top: 7px; }
+
+    footer {
+      padding: 28px 64px;
+      color: #dfeeed;
+      background: #173f45;
+      font-size: 13px;
+    }
+
+    code {
+      padding: 2px 5px;
+      border-radius: 4px;
+      background: #edf1f1;
+      font-family: Consolas, monospace;
+    }
+
+    @media (max-width: 850px) {
+      header, section, footer { padding-left: 28px; padding-right: 28px; }
+      .kpis, .chart-grid { grid-template-columns: 1fr; }
+    }
+
+    @media print {
+      body { background: white; }
+      main { width: 100%; margin: 0; box-shadow: none; }
+      .chart-card, figure, table { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <p class="eyebrow">DATA ANALYSIS FINAL REPORT</p>
+    <h1>타이타닉 승객 생존 요인 분석</h1>
+    <p class="subtitle">승객 891명의 성별, 객실 등급, 나이, 운임, 가족 규모와 탑승 정보를 이용해 생존율 차이를 탐색한 최종 보고서</p>
+  </header>
+
+  <section>
+    <h2>1. 분석 요약</h2>
+    <p class="lead">전체 승객의 생존율은 38.4%였다. 가장 큰 차이는 성별과 객실 등급에서 나타났으며, 가족 규모·운임·객실 정보 유무도 생존율과 뚜렷한 관련을 보였다.</p>
+
+    <div class="kpis">
+      <div class="kpi"><strong>891명</strong><span>전체 승객</span></div>
+      <div class="kpi"><strong>342명</strong><span>생존자</span></div>
+      <div class="kpi"><strong>38.4%</strong><span>전체 생존율</span></div>
+      <div class="kpi"><strong>74.2%</strong><span>여성 생존율</span></div>
+    </div>
+
+    <div class="summary-box">
+      <strong>핵심 결론</strong><br>
+      여성과 상위 객실 등급 승객의 생존율이 높았다. 가족은 많을수록 좋은 것이 아니라 2~4명 규모일 때 생존율이 가장 높았고, 혼자 탑승하거나 5명 이상 대가족인 경우 생존율이 낮았다. 다만 이 결과는 변수 사이의 관련성을 보여 줄 뿐, 특정 변수가 생존의 직접적인 원인임을 증명하지는 않는다.
+    </div>
+  </section>
+
+  <section>
+    <h2>2. 데이터 이해와 분석 방법</h2>
+    <table>
+      <thead><tr><th>구분</th><th>내용</th></tr></thead>
+      <tbody>
+        <tr><td>데이터 크기</td><td>891행 × 12열, 한 행은 승객 1명을 의미</td></tr>
+        <tr><td>목표 변수</td><td><code>Survived</code>: 0은 사망, 1은 생존</td></tr>
+        <tr><td>주요 설명 변수</td><td><code>Sex</code>, <code>Pclass</code>, <code>Age</code>, <code>Fare</code>, <code>SibSp</code>, <code>Parch</code>, <code>Cabin</code>, <code>Embarked</code>, <code>Ticket</code>, <code>Name</code></td></tr>
+        <tr><td>결측치</td><td>Age 177개(19.9%), Cabin 687개(77.1%), Embarked 2개(0.2%)</td></tr>
+        <tr><td>가족 규모</td><td><code>SibSp + Parch + 1</code>로 계산</td></tr>
+        <tr><td>분석 방식</td><td>집단별 생존 인원, 전체 인원, 생존율을 비교하는 기술통계 및 시각화</td></tr>
+      </tbody>
+    </table>
+    <p class="note"><strong>주의:</strong> 나이 분석에서는 Age가 비어 있는 177명을 제외했다. Cabin은 결측치가 매우 많으므로 “객실 정보 있음” 자체보다 객실 등급이나 기록 상태를 대신 나타내는 변수일 수 있다.</p>
+  </section>
+
+  <section>
+    <h2>3. 전체 시각화</h2>
+    <figure>
+      <img src="hypothesis_dashboard.png" alt="타이타닉 데이터 분석 가설 12개 종합 대시보드">
+      <figcaption>그림 1. 타이타닉 데이터 분석 가설 12개 종합 대시보드</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <h2>4. 가설별 결과 요약</h2>
+    <table>
+      <thead>
+        <tr><th>번호</th><th>가설</th><th>주요 결과</th><th>판단</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td>여성의 생존율이 남성보다 높다.</td><td>여성 74.2%, 남성 18.9%</td><td><span class="badge supported">지지</span></td></tr>
+        <tr><td>2</td><td>객실 등급이 높을수록 생존율이 높다.</td><td>1등실 63.0%, 2등실 47.3%, 3등실 24.2%</td><td><span class="badge supported">지지</span></td></tr>
+        <tr><td>3</td><td>객실 등급의 영향은 성별에 따라 다르다.</td><td>여성은 1·2등실에서 90% 이상, 남성은 모든 등실에서 더 낮음</td><td><span class="badge supported">지지</span></td></tr>
+        <tr><td>4</td><td>어린 승객의 생존율이 성인보다 높다.</td><td>0~12세 58.0%, 61세 이상 22.7%</td><td><span class="badge partial">부분 지지</span></td></tr>
+        <tr><td>5</td><td>운임이 높을수록 생존율이 높다.</td><td>운임 하위 25% 19.7%, 상위 25% 58.1%</td><td><span class="badge supported">지지</span></td></tr>
+        <tr><td>6</td><td>혼자 탑승한 승객과 가족 동반 승객의 생존율이 다르다.</td><td>혼자 30.4%, 가족 동반 50.6%</td><td><span class="badge supported">지지</span></td></tr>
+        <tr><td>7</td><td>가족 규모가 지나치게 크면 생존율이 낮다.</td><td>2~4명 57.9%, 5명 이상 16.1%</td><td><span class="badge supported">지지</span></td></tr>
+        <tr><td>8</td><td>객실 번호가 기록된 승객의 생존율이 높다.</td><td>정보 있음 66.7%, 없음 30.0%</td><td><span class="badge supported">지지</span></td></tr>
+        <tr><td>9</td><td>승선 항구에 따라 생존율이 다르다.</td><td>C 55.4%, Q 39.0%, S 33.7%</td><td><span class="badge supported">지지</span></td></tr>
+        <tr><td>10</td><td>같은 등실에서도 운임이 높을수록 생존율이 높다.</td><td>1·3등실은 대체로 상승하나 2등실은 최상위 구간에서 하락</td><td><span class="badge partial">부분 지지</span></td></tr>
+        <tr><td>11</td><td>승객 호칭에 따라 생존율이 다르다.</td><td>Mrs 79.2%, Miss 69.8%, Mr 15.7%</td><td><span class="badge supported">지지</span></td></tr>
+        <tr><td>12</td><td>티켓을 공유한 집단의 규모에 따라 생존율이 다르다.</td><td>3~4명 61.7%, 1명 29.8%, 5명 이상 10.2%</td><td><span class="badge supported">지지</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>5. 가설별 시각화와 해석</h2>
+    <div class="chart-grid">
+      <article class="chart-card">
+        <img src="hypothesis_charts/01_sex.png" alt="성별 생존율">
+        <div class="text"><h3>가설 1 · 성별</h3><p>여성 314명 중 233명이 생존했지만 남성 577명 중 생존자는 109명이었다. 성별은 가장 큰 생존율 차이를 보인 변수다.</p></div>
+      </article>
+      <article class="chart-card">
+        <img src="hypothesis_charts/02_pclass.png" alt="객실 등급별 생존율">
+        <div class="text"><h3>가설 2 · 객실 등급</h3><p>1등실에서 3등실로 내려갈수록 생존율이 낮아졌다. 객실 위치, 구조 시설 접근성, 승객의 사회경제적 조건 등이 함께 반영됐을 가능성이 있다.</p></div>
+      </article>
+      <article class="chart-card">
+        <img src="hypothesis_charts/03_sex_pclass.png" alt="성별과 객실 등급별 생존율">
+        <div class="text"><h3>가설 3 · 성별과 객실 등급</h3><p>여성은 1등실 96.8%, 2등실 92.1%, 3등실 50.0%였다. 남성은 각각 36.9%, 15.7%, 13.5%로 성별 차이가 모든 등급에서 나타났다.</p></div>
+      </article>
+      <article class="chart-card">
+        <img src="hypothesis_charts/04_age.png" alt="연령대별 생존율">
+        <div class="text"><h3>가설 4 · 나이</h3><p>0~12세의 생존율이 58.0%로 가장 높고 61세 이상은 22.7%로 가장 낮았다. 그러나 중간 연령대는 단순히 나이가 증가할수록 계속 낮아지는 형태는 아니다.</p></div>
+      </article>
+      <article class="chart-card">
+        <img src="hypothesis_charts/05_fare.png" alt="운임 수준별 생존율">
+        <div class="text"><h3>가설 5 · 운임</h3><p>운임 사분위가 높아질수록 생존율이 19.7%에서 58.1%로 증가했다. 운임은 객실 등급과 관련이 크므로 두 변수의 효과가 섞여 있을 수 있다.</p></div>
+      </article>
+      <article class="chart-card">
+        <img src="hypothesis_charts/06_alone.png" alt="혼자 탑승 여부별 생존율">
+        <div class="text"><h3>가설 6 · 혼자 탑승</h3><p>가족 동반 승객의 생존율은 50.6%로 혼자 탑승한 승객의 30.4%보다 높았다. 동행 가족의 존재가 비상 상황에서 도움이 되었을 가능성이 있다.</p></div>
+      </article>
+      <article class="chart-card">
+        <img src="hypothesis_charts/07_family_size.png" alt="가족 규모별 생존율">
+        <div class="text"><h3>가설 7 · 가족 규모</h3><p>2~4명 가족의 생존율이 57.9%로 가장 높았다. 혼자 탑승한 경우는 30.4%, 5명 이상 대가족은 16.1%로 가족 규모와 생존율은 역 U자형 관계를 보였다.</p></div>
+      </article>
+      <article class="chart-card">
+        <img src="hypothesis_charts/08_cabin.png" alt="객실 정보 유무별 생존율">
+        <div class="text"><h3>가설 8 · 객실 정보</h3><p>객실 정보가 있는 승객의 생존율은 66.7%, 없는 승객은 30.0%였다. 다만 Cabin 결측률이 77.1%이므로 객실 정보 유무를 직접적인 원인으로 해석하면 안 된다.</p></div>
+      </article>
+      <article class="chart-card">
+        <img src="hypothesis_charts/09_embarked.png" alt="승선 항구별 생존율">
+        <div class="text"><h3>가설 9 · 승선 항구</h3><p>셰르부르(C) 승객의 생존율이 55.4%로 가장 높았다. 이는 항구 자체보다는 항구별 객실 등급·운임·성별 구성의 차이 때문일 가능성이 있다.</p></div>
+      </article>
+      <article class="chart-card">
+        <img src="hypothesis_charts/10_fare_within_class.png" alt="동일 객실 등급 내 운임별 생존율">
+        <div class="text"><h3>가설 10 · 등실을 고려한 운임</h3><p>1등실은 하위 운임 46.3%에서 상위 운임 74.1%로 높아졌고, 3등실도 소폭 상승했다. 2등실은 중상위 구간에서 가장 높아 완전한 직선 관계는 아니었다.</p></div>
+      </article>
+      <article class="chart-card">
+        <img src="hypothesis_charts/11_title.png" alt="승객 호칭별 생존율">
+        <div class="text"><h3>가설 11 · 이름 속 호칭</h3><p>Mrs와 Miss의 생존율은 각각 79.2%, 69.8%였지만 Mr는 15.7%였다. 호칭에는 성별, 결혼 여부, 나이와 사회적 위치 정보가 함께 포함돼 있다.</p></div>
+      </article>
+      <article class="chart-card">
+        <img src="hypothesis_charts/12_ticket_group.png" alt="티켓 공유 인원별 생존율">
+        <div class="text"><h3>가설 12 · 티켓 공유 집단</h3><p>3~4명이 같은 티켓을 사용한 집단의 생존율이 61.7%로 가장 높고, 5명 이상은 10.2%로 가장 낮았다. 가족 규모 분석과 비슷하게 적정한 동행 규모가 유리한 패턴이다.</p></div>
+      </article>
+    </div>
+  </section>
+
+  <section>
+    <h2>6. 핵심 인사이트</h2>
+    <ul>
+      <li><strong>성별이 가장 뚜렷한 차이를 만들었다.</strong> 여성의 생존율은 남성보다 약 3.9배 높았다.</li>
+      <li><strong>객실 등급도 중요한 관련 변수였다.</strong> 1등실 생존율은 3등실보다 약 2.6배 높았다.</li>
+      <li><strong>성별과 등급은 함께 살펴봐야 한다.</strong> 같은 여성이라도 3등실 생존율은 1·2등실보다 크게 낮았다.</li>
+      <li><strong>동행 규모에는 적정 수준이 있었다.</strong> 혼자이거나 지나치게 큰 집단보다 2~4명 규모의 동행이 유리했다.</li>
+      <li><strong>운임·객실 정보·항구는 다른 변수의 영향을 포함할 수 있다.</strong> 보이는 차이를 곧바로 직접적인 원인으로 해석해서는 안 된다.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>7. 분석의 한계</h2>
+    <ul>
+      <li>이번 분석은 집단별 비율을 비교한 탐색적 분석이며, 카이제곱 검정이나 로지스틱 회귀를 통한 통계적 검증은 포함하지 않았다.</li>
+      <li>Age와 Cabin에는 결측치가 많아 전체 승객을 완전하게 대표하지 못할 수 있다.</li>
+      <li>성별, 객실 등급, 운임, 승선 항구는 서로 관련되어 있어 하나의 변수만으로 생존 원인을 설명하기 어렵다.</li>
+      <li>티켓 공유 인원과 가족 규모는 실제 관계를 완벽하게 나타내지 않는다. 친구, 하인 또는 비가족 동행이 같은 티켓을 사용할 수 있다.</li>
+      <li>이 데이터는 타이타닉 전체 탑승객이 아닌 분석용 표본이므로 실제 전체 명단과 수치가 다를 수 있다.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>8. 최종 결론</h2>
+    <p class="lead">타이타닉 생존 여부는 한 가지 조건이 아니라 성별, 객실 등급, 경제적 조건, 나이와 동행 형태가 함께 작용한 결과로 보인다.</p>
+    <p>데이터에서 가장 강하게 나타난 특징은 여성과 상위 등실 승객의 높은 생존율이다. 가족이나 티켓 동행은 적당한 규모일 때 생존율이 높았지만, 대규모 집단에서는 오히려 크게 낮아졌다. 따라서 “가족이 있으면 무조건 유리하다”거나 “운임이 높으면 반드시 생존한다”는 단순한 결론보다 여러 조건의 조합을 함께 살펴보는 것이 적절하다.</p>
+    <p>다음 단계에서는 성별·객실 등급·나이·운임·가족 규모를 동시에 포함한 로지스틱 회귀 분석을 실시해 각 변수의 독립적인 영향과 통계적 유의성을 확인할 수 있다.</p>
+  </section>
+
+  <section>
+    <h2>9. 프로젝트 산출물</h2>
+    <table>
+      <thead><tr><th>파일</th><th>역할</th></tr></thead>
+      <tbody>
+        <tr><td><code>titanic.csv</code></td><td>원본 승객 데이터</td></tr>
+        <tr><td><code>titanic_data_description.md</code></td><td>데이터와 컬럼 설명</td></tr>
+        <tr><td><code>survival_pie_chart.py</code></td><td>성별·객실 등급별 6개 파이차트 생성</td></tr>
+        <tr><td><code>family_size_survival_chart.py</code></td><td>가족 규모별 생존·사망 비율 차트 생성</td></tr>
+        <tr><td><code>hypothesis_visualizations.py</code></td><td>12개 가설의 개별 차트와 종합 대시보드 생성</td></tr>
+        <tr><td><code>hypothesis_charts/</code></td><td>가설별 PNG 이미지 12개</td></tr>
+        <tr><td><code>hypothesis_dashboard.png</code></td><td>12개 가설 종합 시각화</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <footer>
+    타이타닉 데이터 분석 최종 보고서 · 원본 파일과 생성 이미지는 이 HTML 파일과 같은 프로젝트 폴더에 보관되어 있습니다.
+  </footer>
+</main>
+</body>
+</html>
